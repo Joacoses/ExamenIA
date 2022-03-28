@@ -1,5 +1,5 @@
 (deffacts  robot 
-    (robot 0 0 liniaPedido 0 0 0 0 0 0 naranjas 0 manzanas 0 caquis 0 uva 0 )
+    (robot 0 0 0 liniaPedido 0 0 0 0 0 0 naranjas 0 manzanas 0 caquis 0 uva 0 )
     (PaletNaranjas 1 0)
     (PaletManzanas 2 0)
     (PaletCaquis 3 0)
@@ -13,69 +13,120 @@
     (declare (salience 50))
 
     ;;donde esta el robot
-    ?f1 <- (robot ?x  ?y liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
+    ?f1 <- (robot ?x  ?y  ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
     ?f2 <- (limite ?x2 ?y2)
     (test (< ?x ?x2) )
     =>
     ;;datos actualizados
-    (assert (robot (+ ?x 1) ?y liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V ))
+    (assert (robot (+ ?x 1) ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V ))
 )
 
 (defrule moverIzquierda
     (declare (salience 50))
 
-    ?f1 <- (robot ?x  ?y liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
+    ?f1 <- (robot ?x  ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
     ?f2 <- (limite ?x2 ?y2)
 
     (not (obstaculo =(- ?x 1) ?y))
     (test (> ?x 0) )
     =>
 
-    (assert (robot (- ?x 1) ?y liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V))
+    (assert (robot (- ?x 1) ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V))
 )
 
 ;;acciones
-(defrule cogerPaquete
+(defrule cogerNaranjas
     (declare (salience 100))
 
-    ?f1 <- (robot ?x  ?y ?p almacen $?datosAlmacen)
-    ?f2 <- (paquete ?x2 ?y2)
+    ?f1 <- (robot ?x  ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
+    ?f2 <- (PaletNaranjas ?x2 ?y2)
 
     (test (= ?x ?x2) )
     (test (= ?y ?y2) )
-    (test (eq ?p no))
+    (test (< (?z) 4))
     =>
 
-    (assert (robot ?x ?y si almacen $?datosAlmacen))
-    (printout t "Cogiendo el paquete" crlf)
+    (assert (robot ?x  ?y (+ ?z 1) liniaPedido $?datos naranjas (+ ?N 1) manzanas ?M caquis ?C uva ?V))
+    (printout t "Cogiendo el paquete de naranjas" crlf)
+)
+
+(defrule cogerManzanas
+    (declare (salience 100))
+
+    ?f1 <- (robot ?x  ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
+    ?f2 <- (PaletNaranjas ?x2 ?y2)
+
+    (test (= ?x ?x2) )
+    (test (= ?y ?y2) )
+    (test (< (?z) 4))
+    =>
+
+    (assert (robot ?x  ?y (+ ?z 1) liniaPedido $?datos naranjas ?N manzanas (+ ?M 1) caquis ?C uva ?V))
+    (printout t "Cogiendo el paquete de manzanas" crlf)
 )
 
 
+(defrule cogerCaquis
+    (declare (salience 100))
+
+    ?f1 <- (robot ?x  ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
+    ?f2 <- (PaletNaranjas ?x2 ?y2)
+
+    (test (= ?x ?x2) )
+    (test (= ?y ?y2) )
+    (test (< (?z) 4))
+    =>
+
+    (assert (robot ?x  ?y (+ ?z 1) liniaPedido $?datos naranjas ?N manzanas ?M caquis (+ ?C 1) uva ?V))
+    (printout t "Cogiendo el paquete de caquis" crlf)
+)
+
+(defrule cogerUvas
+    (declare (salience 100))
+
+    ?f1 <- (robot ?x  ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
+    ?f2 <- (PaletNaranjas ?x2 ?y2)
 
 
+    (test (= ?x ?x2) )
+    (test (= ?y ?y2) )
+    (test (< (?z) 4))
+    =>
 
-
-
-
-
-
-
-
-
-
-
+    (assert (robot ?x  ?y (+ ?z 1) liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva (+ ?V 1)))
+    (printout t "Cogiendo el paquete de uvas" crlf)
+)
 
 
 (defrule dejarPaquete
     (declare (salience 100))
-    ?f1 <- (robot ?x  ?y liniaPedido ?x ?y ?n ?m ?c ?u naranjas ?N manzanas ?M caquis ?C uva ?V)
+    ?f1 <- (robot ?x  ?y ?z liniaPedido ?x2 ?y2 ?vNar ?vMan ?vCaq ?vUva naranjas ?N manzanas ?M caquis ?C uva ?V)
     (test (= ?x ?x2) )
     (test (= ?y ?y2) )
-    (test (eq ?p si))
     =>
 
-    (assert (robot ?x  ?y no almacen ?x ?y si))
+    (assert (robot ?x  ?y 0 liniaPedido ?x2 ?y2 ?N ?M ?C ?V naranjas 0 manzanas 0 caquis 0 uva 0))
     ;;paramos
     (halt)
     (printout t "Dejando el paquete" crlf)
 )
+
+(defrule finalizar
+    (declare (salience 100))
+    ?f1 <- (robot ?x  ?y ?z liniaPedido ?x2 ?y2 ?vNar ?vMan ?vCaq ?vUva naranjas ?N manzanas ?M caquis ?C uva ?V)
+    ?f2 <- (pedido ?nar ?man ?caq ?uva)
+    (test (= ?x ?x2) )
+    (test (= ?y ?y2) )
+    (test (= ?nar ?vNar) )
+    (test (= ?man ?vMan) )
+    (test (= ?caq ?vCaq) )
+    (test (= ?uva ?vUva) )
+    =>
+
+    (assert (robot ?x  ?y 0 liniaPedido ?x2 ?y2 ?N ?M ?C ?V naranjas 0 manzanas 0 caquis 0 uva 0))
+    ;;paramos
+    (halt)
+    (printout t "Hemos entr" crlf)
+)
+
+    
