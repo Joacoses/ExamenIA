@@ -7,7 +7,7 @@
     (limite 5 1)
     (pedido 2 3 0 1)
 )
-
+;;---------------------------------------------------------------------------------------------------------------------------
 ;;movimientos
 (defrule moverDerecha
     (declare (salience 50))
@@ -34,18 +34,19 @@
     (assert (robot (- ?x 1) ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V))
 )
 
+;;---------------------------------------------------------------------------------------------------------------------------
 ;;acciones
 (defrule cogerNaranjas
-    (declare (salience 100))
+    (declare (salience 80))
 
     ?f1 <- (robot ?x ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
     ?f2 <- (PaletNaranjas ?x2 ?y2)
     ?f3 <- (pedido ?pedidoNaranjas ?pedidoManzanas ?pedidoCaquis ?pedidoUvas)
 
+    (test (< ?N ?pedidoNaranjas))
     (test (= ?x ?x2) )
     (test (= ?y ?y2) )
-    (test (< ?z 4))
-    (test (< ?N ?pedidoNaranjas))
+    (test (< ?z 4))  
     =>
 
     (assert (robot ?x ?y (+ ?z 1) liniaPedido $?datos naranjas (+ ?N 1) manzanas ?M caquis ?C uva ?V))
@@ -53,11 +54,13 @@
 )
 
 (defrule cogerManzanas
-    (declare (salience 100))
+    (declare (salience 80))
 
     ?f1 <- (robot ?x ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
     ?f2 <- (PaletNaranjas ?x2 ?y2)
+    ?f3 <- (pedido ?pedidoNaranjas ?pedidoManzanas ?pedidoCaquis ?pedidoUvas)
 
+    (test (< ?N ?pedidoManzanas))
     (test (= ?x ?x2) )
     (test (= ?y ?y2) )
     (test (< ?z 4))
@@ -69,11 +72,13 @@
 
 
 (defrule cogerCaquis
-    (declare (salience 100))
+    (declare (salience 80))
 
     ?f1 <- (robot ?x ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
     ?f2 <- (PaletNaranjas ?x2 ?y2)
+    ?f3 <- (pedido ?pedidoNaranjas ?pedidoManzanas ?pedidoCaquis ?pedidoUvas)
 
+    (test (< ?N ?pedidoCaquis))
     (test (= ?x ?x2) )
     (test (= ?y ?y2) )
     (test (< ?z 4))
@@ -84,12 +89,13 @@
 )
 
 (defrule cogerUvas
-    (declare (salience 100))
+    (declare (salience 80))
 
     ?f1 <- (robot ?x ?y ?z liniaPedido $?datos naranjas ?N manzanas ?M caquis ?C uva ?V)
     ?f2 <- (PaletNaranjas ?x2 ?y2)
+    ?f3 <- (pedido ?pedidoNaranjas ?pedidoManzanas ?pedidoCaquis ?pedidoUvas)
 
-
+    (test (< ?N ?pedidoUvas))
     (test (= ?x ?x2) )
     (test (= ?y ?y2) )
     (test (< ?z 4))
@@ -113,6 +119,7 @@
     (printout t "Dejando el paquete" crlf)
 )
 
+;;---------------------------------------------------------------------------------------------------------------------------
 (defrule finalizar
     (declare (salience 100))
     ?f1 <- (robot ?x ?y ?z liniaPedido ?x2 ?y2 ?vNar ?vMan ?vCaq ?vUva naranjas ?N manzanas ?M caquis ?C uva ?V)
